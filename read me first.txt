@@ -1,0 +1,34 @@
+First make workspace with name Project_fx and password 123
+
+then do this sql commands 
+
+
+-- 1. Create the Books table
+
+
+CREATE TABLE Books (
+    id NUMBER PRIMARY KEY,
+    Bookname VARCHAR2(100) NOT NULL,
+    Author VARCHAR2(100) NOT NULL,
+    Genre VARCHAR2(50) NOT NULL,
+    Availability VARCHAR2(20) NOT NULL
+);
+
+
+-- 2. Insert sample data(run each line alone not all one)
+
+
+INSERT INTO Books VALUES (1, 'To Kill a Mockingbird', 'Harper Lee', 'Fiction', 'Available');
+INSERT INTO Books VALUES (2, '1984', 'George Orwell', 'Dystopian', 'Available');
+INSERT INTO Books VALUES (3, 'The Great Gatsby', 'F. Scott Fitzgerald', 'Classic', 'Borrowed');
+INSERT INTO Books VALUES (4, 'Pride and Prejudice', 'Jane Austen', 'Romance', 'Available');
+INSERT INTO Books VALUES (5, 'The Catcher in the Rye', 'J.D. Salinger', 'Fiction', 'Available');
+INSERT INTO Books VALUES (6, 'Harry Potter and the Sorcerer''s Stone', 'J.K. Rowling', 'Fantasy', 'Borrowed');
+INSERT INTO Books VALUES (7, 'The Hobbit', 'J.R.R. Tolkien', 'Fantasy', 'Available');
+INSERT INTO Books VALUES (8, 'The Da Vinci Code', 'Dan Brown', 'Mystery', 'Available');
+INSERT INTO Books VALUES (9, 'Brave New World', 'Aldous Huxley', 'Science Fiction', 'Available');
+INSERT INTO Books VALUES (10, 'The Alchemist', 'Paulo Coelho', 'Adventure', 'Borrowed');
+
+
+
+Enjoy💙
