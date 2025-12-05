@@ -15,6 +15,7 @@ import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.DatePicker;
 import javafx.scene.control.Label;
@@ -58,37 +59,45 @@ public class HelloApplication extends Application {
         Scene scene = new Scene(root, 350, 400);
         scene.getStylesheets().add(getClass().getResource("Sheet.css").toExternalForm());
 
-        stage.setTitle("Welcome!");
-        stage.setScene(scene);
-        stage.show();
+        
 
         Alert Welcome = new Alert(Alert.AlertType.INFORMATION, "Welcome!");
         Welcome.setTitle("Signed in");
         
-        signin.setOnAction((ActionEvent) -> {
-            if ((emailT.getText().equals("admin@library.com")) && passT.getText().equals("admin123")) {
-                Welcome.showAndWait();
+    signin.setOnAction(e -> {
+    if (emailT.getText().equals("admin@library.com") && passT.getText().equals("admin123")) {
+        Alert welcome = new Alert(Alert.AlertType.INFORMATION, "Welcome!");
+        welcome.setTitle("Signed in");
+        welcome.showAndWait();
 
-                if (Welcome.getResult().getText().equals("OK")) {
-                    // Proceed to library scene stage.setScene(scene3);
-                    
-                signin.setOnAction(e -> {
-        try {
-            Library(stage); // Call Library method
+        if (welcome.getResult() == ButtonType.OK) {
+            try {
+                Library(stage);
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            }
+        }
+    } else {
+        Alert error = new Alert(Alert.AlertType.ERROR, "Invalid credentials! Use:\nEmail: admin@library.com\nPassword: admin123");
+        error.setTitle("Invalid");
+        error.show();
+    }
+});
+
+        signup.setOnAction((ActionEvent) -> {
+            try {
+            SignUp(stage); // Call Library method
         } catch (IOException ex) {
             ex.printStackTrace();
         }
+        
     });
-                }
-            } else {
-                Alert error = new Alert(Alert.AlertType.ERROR, "Invalid credentials! Use:\nEmail: admin@library.com\nPassword: admin123");
-                error.setTitle("Invalid");
-                error.show();
+        stage.setTitle("Welcome!");
+        stage.setScene(scene);
+        stage.show();
 
-            }
-        });
 
-        }
+}
 
         public void SignUp(Stage stage) throws IOException {
         Label nameL = new Label("Name :");
