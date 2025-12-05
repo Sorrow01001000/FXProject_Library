@@ -1,33 +1,35 @@
 package com.doha;
 
 import java.io.IOException;
-import java.sql.*;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+
 import javafx.application.Application;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
-import javafx.fxml.FXMLLoader;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableView;
-import javafx.scene.control.TextField;
-import javafx.scene.control.cell.PropertyValueFactory;
-import javafx.scene.layout.*;
-import javafx.scene.text.Text;
-import javafx.stage.Stage;
-import javafx.collections.*;
 import javafx.scene.control.Alert;
+import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.DatePicker;
+import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.RadioButton;
+import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableView;
 import javafx.scene.control.TextArea;
+import javafx.scene.control.TextField;
 import javafx.scene.control.ToggleGroup;
+import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.layout.GridPane;
+import javafx.scene.layout.VBox;
+import javafx.scene.text.Text;
+import javafx.stage.Stage;
 
 public class HelloApplication extends Application {
     Connection conn = null;
@@ -35,7 +37,99 @@ public class HelloApplication extends Application {
     ResultSet res = null;
     ObservableList<Books> data;
     TableView<Books> table;
+    public void SignIn(Stage stage) throws IOException{
+        Label email = new Label("Email: ");
+        Label pass = new Label("Password: ");
+        TextField emailT = new TextField();
+        PasswordField passT = new PasswordField();
+        Button signin = new Button("Sign in");
+        Button signup = new Button("Sign up");
+        GridPane root = new GridPane();
+        root.add(email, 0, 0);
+        root.add(pass, 0, 1);
+        root.add(emailT, 1, 0);
+        root.add(passT, 1, 1);
+        root.add(signin, 0, 2);
+        root.add(signup, 1, 2);
+        root.setAlignment(Pos.CENTER);
+        root.setVgap(10);
+        root.setHgap(10);
 
+        Scene scene = new Scene(root, 350, 400);
+        scene.getStylesheets().add(getClass().getResource("Sheet.css").toExternalForm());
+
+        stage.setTitle("Welcome!");
+        stage.setScene(scene);
+        stage.show();
+
+        Alert Welcome = new Alert(Alert.AlertType.INFORMATION, "Welcome!");
+        Welcome.setTitle("Signed in");
+        
+        signin.setOnAction((ActionEvent) -> {
+            if ((emailT.getText().equals("admin@library.com")) && passT.getText().equals("admin123")) {
+                Welcome.showAndWait();
+
+                if (Welcome.getResult().getText().equals("OK")) {
+                    // Proceed to library scene stage.setScene(scene3);
+                    
+                signin.setOnAction(e -> {
+        try {
+            Library(stage); // Call Library method
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        }
+    });
+                }
+            } else {
+                Alert error = new Alert(Alert.AlertType.ERROR, "Invalid credentials! Use:\nEmail: admin@library.com\nPassword: admin123");
+                error.setTitle("Invalid");
+                error.show();
+
+            }
+        });
+
+        }
+
+        public void SignUp(Stage stage) throws IOException {
+        Label nameL = new Label("Name :");
+        Label passL = new Label("Password :");
+        Label emailL = new Label("Email :");
+        Label datel = new Label("Date of birth :");
+        TextField nameK = new TextField();
+        PasswordField passK = new PasswordField();
+        TextField emailK = new TextField();
+        Button signupK = new Button("Sign up");
+        DatePicker date = new DatePicker();
+        RadioButton rb1 = new RadioButton("Male ");
+        RadioButton rb2 = new RadioButton("Female ");
+        ToggleGroup tg = new ToggleGroup();
+        rb1.setToggleGroup(tg);
+        rb2.setToggleGroup(tg);
+
+        CheckBox cb = new CheckBox("I agree ");
+        GridPane toot = new GridPane();
+
+        toot.add(nameL, 0, 0);
+        toot.add(passL, 0, 1);
+        toot.add(emailL, 0, 2);
+        toot.add(datel, 0, 3);
+        toot.add(nameK, 1, 0);
+        toot.add(passK, 1, 1);
+        toot.add(emailK, 1, 2);
+        toot.add(date, 1, 3);
+        toot.add(rb1, 0, 4);
+        toot.add(rb2, 1, 4);
+        toot.add(cb, 0, 5);
+        toot.add(signupK, 1, 5);
+        toot.setHgap(10);
+        toot.setVgap(10);
+        toot.setAlignment(Pos.CENTER);
+
+
+        }
+        public void Library(Stage stage) throws IOException {
+        
+        }
     @Override
     public void start(Stage stage) throws IOException {
 
