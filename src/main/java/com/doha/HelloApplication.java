@@ -86,7 +86,7 @@ public class HelloApplication extends Application {
 
         signup.setOnAction((ActionEvent) -> {
             try {
-            SignUp(stage); // Call Library method
+            SignUp(stage);
         } catch (IOException ex) {
             ex.printStackTrace();
         }
@@ -112,12 +112,13 @@ public class HelloApplication extends Application {
         RadioButton rb1 = new RadioButton("Male ");
         RadioButton rb2 = new RadioButton("Female ");
         ToggleGroup tg = new ToggleGroup();
+        Button back = new Button("Back");
         rb1.setToggleGroup(tg);
         rb2.setToggleGroup(tg);
 
         CheckBox cb = new CheckBox("I agree ");
         GridPane toot = new GridPane();
-
+        toot.add(back, 1, 7);
         toot.add(nameL, 0, 0);
         toot.add(passL, 0, 1);
         toot.add(emailL, 0, 2);
@@ -133,6 +134,48 @@ public class HelloApplication extends Application {
         toot.setHgap(10);
         toot.setVgap(10);
         toot.setAlignment(Pos.CENTER);
+
+        Scene scene2 = new Scene(toot, 1200, 800);
+        scene2.getStylesheets().add(getClass().getResource("Sheet.css").toExternalForm());
+
+signupK.setOnAction((ActionEvent event) -> {
+            stage.setTitle("Form");
+        Alert signupAlert = new Alert(Alert.AlertType.INFORMATION, "signup!");
+        signupAlert.setTitle("Signed in");
+
+            if (nameK.getText().trim().isEmpty() || passK.getText().trim().isEmpty() || emailK.getText().trim().isEmpty()) {
+                Alert error = new Alert(Alert.AlertType.ERROR, "Please fill in all required fields.");
+                error.setTitle("Invalid Inputs");
+                error.show();
+            } else if (!cb.isSelected()) {
+                Alert error = new Alert(Alert.AlertType.ERROR, "Please agree to the terms.");
+                error.setTitle("Agreement Required");
+                error.show();
+            } else {
+                signupAlert.showAndWait();
+
+                if (signupAlert.getResult().getText().equals("OK")) {
+                try {
+                SignIn(stage);
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            }
+                }
+            }
+        });
+        
+        back.setOnAction((ActionEvent event) -> {
+        try {
+                SignIn(stage);
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            }
+        });
+
+
+            stage.setTitle("Sign Up");
+            stage.setScene(scene2);
+            stage.show();
 
 
         }
