@@ -38,7 +38,7 @@ public class HelloApplication extends Application {
     ResultSet res = null;
     ObservableList<Books> data;
     TableView<Books> table;
-    public void SignIn(Stage stage) throws IOException{
+    public void signIn(Stage stage) throws IOException{
         Label email = new Label("Email: ");
         Label pass = new Label("Password: ");
         TextField emailT = new TextField();
@@ -64,7 +64,7 @@ public class HelloApplication extends Application {
         Alert Welcome = new Alert(Alert.AlertType.INFORMATION, "Welcome!");
         Welcome.setTitle("Signed in");
         
-    signin.setOnAction(e -> {
+/* signin.setOnAction(e -> {
     if (emailT.getText().equals("admin@library.com") && passT.getText().equals("admin123")) {
         Alert welcome = new Alert(Alert.AlertType.INFORMATION, "Welcome!");
         welcome.setTitle("Signed in");
@@ -82,16 +82,72 @@ public class HelloApplication extends Application {
         error.setTitle("Invalid");
         error.show();
     }
-});
+ }); 
+*/
+
+  // Sign in using database credentials (Users table must exist)
+        signin.setOnAction((ActionEvent) -> {
+            String userEmail = emailT.getText().trim();
+            String userPass = passT.getText().trim();
+
+            if (userEmail.isEmpty() || userPass.isEmpty()) {
+                Alert error = new Alert(Alert.AlertType.ERROR, "Please enter email and password.");
+                error.setTitle("Invalid Inputs");
+                error.show();
+                return;
+            }
+
+            conn = dbConn.DBConnection();
+            if (conn == null) {
+                Alert error = new Alert(Alert.AlertType.ERROR, "Database connection failed.");
+                error.setTitle("DB Error");
+                error.show();
+                return;
+            }
+
+            String sql = "SELECT * FROM Users WHERE Email = ? AND Password = ?";
+            try {
+                pst = conn.prepareStatement(sql);
+                pst.setString(1, userEmail);
+                pst.setString(2, userPass);
+                res = pst.executeQuery();
+
+                if (res.next()) {
+                    Welcome.showAndWait();
+                    if (Welcome.getResult().getText().equals("OK")) {
+                       try {
+                Library(stage);
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            }
+                    }
+                } else {
+                    Alert error = new Alert(Alert.AlertType.ERROR, "Invalid credentials!");
+                    error.setTitle("Invalid");
+                    error.show();
+                }
+            } catch (Exception ex) {
+                Alert error = new Alert(Alert.AlertType.ERROR, "Error during sign in: " + ex.getMessage());
+                error.show();
+                System.out.println(ex.toString());
+            } finally {
+                try { if (res != null) res.close(); } catch (Exception e) { }
+                try { if (pst != null) pst.close(); } catch (Exception e) { }
+                try { if (conn != null) conn.close(); } catch (Exception e) { }
+                // reset connection fields to avoid accidental reuse
+                res = null;
+                pst = null;
+                conn = null;
+            }
+        });
 
         signup.setOnAction((ActionEvent) -> {
             try {
-            SignUp(stage);
-        } catch (IOException ex) {
-            ex.printStackTrace();
-        }
-        
-    });
+                SignUp(stage);
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            }
+        });
         stage.setTitle("Welcome!");
         stage.setScene(scene);
         stage.show();
@@ -140,33 +196,73 @@ public class HelloApplication extends Application {
 
 signupK.setOnAction((ActionEvent event) -> {
             stage.setTitle("Form");
-        Alert signupAlert = new Alert(Alert.AlertType.INFORMATION, "signup!");
-        signupAlert.setTitle("Signed in");
 
             if (nameK.getText().trim().isEmpty() || passK.getText().trim().isEmpty() || emailK.getText().trim().isEmpty()) {
                 Alert error = new Alert(Alert.AlertType.ERROR, "Please fill in all required fields.");
                 error.setTitle("Invalid Inputs");
                 error.show();
+                return;
             } else if (!cb.isSelected()) {
                 Alert error = new Alert(Alert.AlertType.ERROR, "Please agree to the terms.");
                 error.setTitle("Agreement Required");
                 error.show();
-            } else {
-                signupAlert.showAndWait();
-
-                if (signupAlert.getResult().getText().equals("OK")) {
-                try {
-                SignIn(stage);
-            } catch (IOException ex) {
-                ex.printStackTrace();
+                return;
             }
+
+            String name = nameK.getText().trim();
+            String password = passK.getText().trim();
+            String email = emailK.getText().trim();
+            String dob = (date.getValue() != null) ? date.getValue().toString() : "";
+            String gender = rb1.isSelected() ? "Male" : (rb2.isSelected() ? "Female" : "");
+
+            conn = dbConn.DBConnection();
+            if (conn == null) {
+                Alert error = new Alert(Alert.AlertType.ERROR, "Database connection failed.");
+                error.setTitle("DB Error");
+                error.show();
+                return;
+            }
+
+            String sql = "INSERT INTO Users (Name, Password, Email, DOB, Gender) VALUES (?, ?, ?, ?, ?)";
+            try {
+                pst = conn.prepareStatement(sql);
+                pst.setString(1, name);
+                pst.setString(2, password);
+                pst.setString(3, email);
+                pst.setString(4, dob);
+                pst.setString(5, gender);
+
+                int i = pst.executeUpdate();
+                if (i == 1) {
+                    Alert info = new Alert(Alert.AlertType.INFORMATION, "Sign up successful. You can now sign in.");
+                    info.setTitle("Signed up");
+                    info.showAndWait();
+                    try {
+                        // go back to sign-in screen
+                        signIn(stage);
+                    } catch (IOException ex) {
+                        ex.printStackTrace();
+                    }
+                } else {
+                    Alert error = new Alert(Alert.AlertType.ERROR, "Sign up failed.");
+                    error.setTitle("Error");
+                    error.show();
                 }
+            } catch (Exception ex) {
+                Alert error = new Alert(Alert.AlertType.ERROR, "Error during sign up: " + ex.getMessage());
+                error.show();
+                System.out.println(ex.toString());
+            } finally {
+                try { if (pst != null) pst.close(); } catch (Exception e) { }
+                try { if (conn != null) conn.close(); } catch (Exception e) { }
+                pst = null;
+                conn = null;
             }
         });
         
         back.setOnAction((ActionEvent event) -> {
-        try {
-                SignIn(stage);
+            try {
+                signIn(stage);
             } catch (IOException ex) {
                 ex.printStackTrace();
             }
