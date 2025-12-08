@@ -7,6 +7,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 */
 import java.io.IOException;
+import java.security.SecureRandom;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -798,9 +799,286 @@ public void SignUp(Stage stage) throws IOException {
         stage.show();
     }
     // ==============================ForgetPassword==========================================
-    public void ForgetPassword(Stage stage ) throws IOException {
+public void ForgetPassword(Stage primaryStage ) throws IOException {
 
-    }
+        Label title = new Label("Forgot Password");
+        title.setStyle("-fx-font-size: 28px; -fx-font-weight: bold;");
+
+
+        Label l1 = new Label("Your email address:");
+        TextField t1 = new TextField();
+        t1.setPromptText("name@example.com");
+        t1.setPrefWidth(250);
+
+
+        Button send = new Button("Send Reset Code");
+        send.setPrefWidth(250);
+        send.setStyle("-fx-background-color: #4a90e2; -fx-text-fill: white; -fx-padding: 10;"
+                + "-fx-font-size: 14px; -fx-background-radius: 5;");
+        
+        Button backFromEmail = new Button("Back");
+        backFromEmail.setPrefWidth(250);
+        backFromEmail.setStyle("-fx-background-color: #e93434ff; -fx-text-fill: white; -fx-padding: 10;"
+                + "-fx-font-size: 14px; -fx-background-radius: 5;");
+
+
+        GridPane g1 = new GridPane();
+        g1.setHgap(10);
+        g1.setVgap(15);
+        g1.setAlignment(Pos.CENTER);
+
+
+        g1.add(title, 0, 0);
+        g1.add(l1,   0, 1);
+        g1.add(t1,   0, 2);
+        g1.add(send, 0, 3);
+        g1.add(backFromEmail, 0, 4);
+
+        g1.setStyle("-fx-background-color: #f5f5f5;");
+
+
+        Scene scene = new Scene(g1, 500, 500);
+        primaryStage.setTitle("Forget Password");
+        primaryStage.setScene(scene);
+        primaryStage.show();
+
+        // Back button from Email scene - goes to SignIn
+        backFromEmail.setOnAction(e -> {
+            try {
+                SignIn(primaryStage);
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            }
+        });
+
+
+    /// ///////////////////////////////////////////////////////////////////////
+
+
+        Label title2 = new Label("Send Reset code:");
+        title2.setStyle("-fx-font-size: 28px; -fx-font-weight: bold;");
+        SecureRandom sr = new SecureRandom();
+        int Verify_Code = 100000 + sr.nextInt(900000);
+        Label l2 = new Label("Enter the code we send to your email");
+        TextField t2 = new TextField();
+        t2.setPromptText("Enter the code");
+        t2.setPrefWidth(250);
+
+
+        Button Verify= new Button("Verify Code");
+        Verify.setPrefWidth(250);
+        Verify.setStyle("-fx-background-color: #4a90e2; -fx-text-fill: white; -fx-padding: 10;"
+                + "-fx-font-size: 14px; -fx-background-radius: 5;");
+        
+        Button backFromVerify = new Button("Back");
+        backFromVerify.setPrefWidth(250);
+        backFromVerify.setStyle("-fx-background-color: #e93434ff; -fx-text-fill: white; -fx-padding: 10;"
+                + "-fx-font-size: 14px; -fx-background-radius: 5;");
+
+        GridPane g2 = new GridPane();
+        g2.setHgap(10);
+        g2.setVgap(15);
+        g2.setAlignment(Pos.CENTER);
+
+
+        g2.add(title2, 0, 0);
+        g2.add(l2,   0, 1);
+        g2.add(t2,   0, 2);
+        g2.add(Verify, 0, 3);
+        g2.add(backFromVerify, 0, 4);
+
+        g2.setStyle("-fx-background-color: #f5f5f5;");
+
+
+    Scene scene2 = new Scene(g2, 500, 500);
+
+       /////////////////////////////////////////////////////////////////////////////
+       
+        // Back button from Verify scene - goes back to Email scene
+        backFromVerify.setOnAction(e -> {
+            t2.clear();
+            primaryStage.setScene(scene);
+            primaryStage.setTitle("Forget Password");
+        });
+
+
+        Label title3 = new Label(" Reset your password:");
+        title3.setStyle("-fx-font-size: 28px; -fx-font-weight: bold;");
+
+        Label l3 = new Label("New password:");
+        TextField t3 = new TextField();
+        t3.setPromptText("Enter new password");
+        t3.setPrefWidth(250);
+
+        Label l4 = new Label("Confirm Password:");
+        TextField t4 = new TextField();
+        t4.setPromptText("Enter Confirm Password");
+        t4.setPrefWidth(250);
+
+        Button Reset= new Button("Reset Password");
+        Reset.setPrefWidth(250);
+        Reset.setStyle("-fx-background-color: #4a90e2; -fx-text-fill: white; -fx-padding: 10;"
+                + "-fx-font-size: 14px; -fx-background-radius: 5;");
+        
+        Button backFromReset = new Button("Back");
+        backFromReset.setPrefWidth(250);
+        backFromReset.setStyle("-fx-background-color: #e93434ff; -fx-text-fill: white; -fx-padding: 10;"
+                + "-fx-font-size: 14px; -fx-background-radius: 5;");
+
+        GridPane g3 = new GridPane();
+        g3.setHgap(10);
+        g3.setVgap(15);
+        g3.setAlignment(Pos.CENTER);
+
+
+        g3.add(title3, 0, 0);
+        g3.add(l3,   0, 1);
+        g3.add(t3,   0, 2);
+        g3.add(l4,   0, 3);
+        g3.add(t4,   0, 4);
+        g3.add(Reset, 0, 5);
+        g3.add(backFromReset, 0, 6);
+
+        g3.setStyle("-fx-background-color: #f5f5f5;");
+
+        Scene scene3 = new Scene(g3, 500, 500);
+
+        /* 
+        send.setOnAction(e -> {
+            String email = t1.getText().trim();
+
+            String emailRegex = "^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$";
+            if(email.isEmpty()) {
+                Alert alert = new Alert(Alert.AlertType.WARNING);
+                alert.setTitle("Warning");
+                alert.setHeaderText(null);
+                alert.setContentText("Please enter your email!");
+                alert.showAndWait();
+            } else if (!email.matches(emailRegex)) {                 Alert alert = new Alert(Alert.AlertType.ERROR);
+                alert.setTitle("Invalid Email");
+                alert.setHeaderText(null);
+                alert.setContentText("Please enter a valid email!");
+                alert.showAndWait();
+            } else {
+                // Store email for password reset and show verification code info
+                t1.setStyle("-fx-text-fill: #666;");
+                Alert infoAlert = new Alert(Alert.AlertType.INFORMATION);
+                infoAlert.setTitle("Code Generated");
+                infoAlert.setHeaderText("Verification Code Sent");
+                infoAlert.setContentText("A verification code has been generated and sent to:\n" + email + 
+                                        "\n\nGenerated Code: " + Verify_Code +
+                                        "\n\nPlease enter this code to proceed with password reset.");
+                infoAlert.showAndWait();
+                
+                primaryStage.setScene(scene2);
+                primaryStage.setTitle("Send Reset code");
+            }
+        }); */
+
+
+        Verify.setOnAction(e -> {
+            String text_faviorte = "";
+            String input = t2.getText().trim();
+            // here ya omar put query select what is ypur faviorte
+
+            if(input.equals(text_faviorte)) {
+                primaryStage.setScene(scene3);
+                primaryStage.setTitle("Reset your password");
+            } else {
+                
+                Alert alert = new Alert(Alert.AlertType.ERROR);
+                alert.setTitle("Invalid Answer");
+                alert.setHeaderText(null);
+                alert.setContentText("Empty Input!");
+                alert.showAndWait();
+            }
+        });
+
+        // Back button from Reset scene - goes back to Verify scene
+        backFromReset.setOnAction(e -> {
+            t3.clear();
+            t4.clear();
+            primaryStage.setScene(scene2);
+            primaryStage.setTitle("Send Reset code");
+        });
+
+        Reset.setOnAction(e -> {
+
+            String pass = t3.getText();
+            String confirm = t4.getText();
+
+            if (!pass.equals(confirm)) {
+                Alert alert = new Alert(Alert.AlertType.ERROR);
+                alert.setTitle("Error");
+                alert.setHeaderText(null);
+                alert.setContentText("Passwords do not match!");
+                alert.showAndWait();
+            } else if (pass.isEmpty() || confirm.isEmpty()) {
+                Alert alert = new Alert(Alert.AlertType.ERROR);
+                alert.setTitle("Error");
+                alert.setHeaderText(null);
+                alert.setContentText("Password fields cannot be empty!");
+                alert.showAndWait();
+            } else {
+                // Update password in database for the email
+                String email = t1.getText().trim();
+                String updateSql = "UPDATE Users SET Password = ? WHERE Email = ?";
+                conn = dbConn.DBConnection();
+                
+                if (conn == null) {
+                    Alert alert = new Alert(Alert.AlertType.ERROR);
+                    alert.setTitle("Error");
+                    alert.setHeaderText("Database Error");
+                    alert.setContentText("Database connection failed!");
+                    alert.showAndWait();
+                    return;
+                }
+                
+                try (PreparedStatement ps = conn.prepareStatement(updateSql)) {
+                    ps.setString(1, pass);
+                    ps.setString(2, email);
+                    int rowsAffected = ps.executeUpdate();
+                    
+                    if (rowsAffected > 0) {
+                        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+                        alert.setTitle("Success");
+                        alert.setHeaderText(null);
+                        alert.setContentText("Password reset successfully!");
+                        alert.showAndWait();
+                        
+                        // Clear all fields and go back to sign-in
+                        t1.clear();
+                        t2.clear();
+                        t3.clear();
+                        t4.clear();
+                        try {
+                            SignIn(primaryStage);
+                        } catch (IOException ex) {
+                            ex.printStackTrace();
+                        }
+                    } else {
+                        Alert alert = new Alert(Alert.AlertType.ERROR);
+                        alert.setTitle("Error");
+                        alert.setHeaderText(null);
+                        alert.setContentText("Email not found in database!");
+                        alert.showAndWait();
+                    }
+                } catch (SQLException ex) {
+                    Alert alert = new Alert(Alert.AlertType.ERROR);
+                    alert.setTitle("Error");
+                    alert.setHeaderText("Database Error");
+                    alert.setContentText("Error updating password: " + ex.getMessage());
+                    alert.showAndWait();
+                    System.out.println(ex.toString());
+                } finally {
+                    try { if (conn != null) conn.close(); } catch (Exception ex) { }
+                    conn = null;
+                }
+            }
+
+        });
+
+}
     // ==============================calcutor==========================================
 public void Calcutor(Stage stage ) throws IOException {
         Button b1 = new Button("About");
@@ -1069,6 +1347,7 @@ public void Calcutor(Stage stage ) throws IOException {
                     emailT.setText(r.getString("Email") != null ? r.getString("Email") : "");
                     dobT.setText(r.getString("DOB") != null ? r.getString("DOB") : "");
                     genderT.setText(r.getString("Gender") != null ? r.getString("Gender") : "");
+                        // that mean if has data print it else not found
                 } else {
                     Alert info = new Alert(Alert.AlertType.INFORMATION, "User not found.");
                     info.setTitle("Not found");
