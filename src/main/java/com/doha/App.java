@@ -1069,6 +1069,7 @@ public void Calcutor(Stage stage ) throws IOException {
                     emailT.setText(r.getString("Email") != null ? r.getString("Email") : "");
                     dobT.setText(r.getString("DOB") != null ? r.getString("DOB") : "");
                     genderT.setText(r.getString("Gender") != null ? r.getString("Gender") : "");
+                        // that mean if has data print it else not found
                 } else {
                     Alert info = new Alert(Alert.AlertType.INFORMATION, "User not found.");
                     info.setTitle("Not found");
