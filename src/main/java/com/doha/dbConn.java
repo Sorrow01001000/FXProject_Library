@@ -13,9 +13,9 @@ import java.sql.DriverManager;
  * @author wessa
  */
 public class dbConn {
-         public static Connection DBConnection() {
+        public static Connection DBConnection() {
         
-         Connection conn = null;
+        Connection conn = null;
 
         try {
             Class.forName("oracle.jdbc.driver.OracleDriver");
@@ -25,7 +25,7 @@ public class dbConn {
         } catch (Exception ex) {
             System.out.println(ex.toString());
         }
-     
+    
         return conn;
     
 }
