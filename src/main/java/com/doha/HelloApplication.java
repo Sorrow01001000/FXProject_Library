@@ -371,6 +371,8 @@ signupK.setOnAction((ActionEvent event) -> {
         Button delete = new Button("Delete");
         Button update = new Button("Update");
         Button back = new Button("Back");
+        Button signOut = new Button("Sign Out");
+        signOut.setStyle("-fx-background-color: #f44336; -fx-text-fill: white; -fx-font-weight: bold;");
 
         GridPane g3 = new GridPane();
         g3.add(txt1, 0, 0, 2, 1);
@@ -397,14 +399,18 @@ signupK.setOnAction((ActionEvent event) -> {
         g4.add(select, 1, 0);
         g4.add(delete, 2, 0);
         g4.add(update, 3, 0);
+        g4.add(signOut, 4, 0);
         g4.setVgap(10);
         g4.setHgap(10);
         g4.setAlignment(Pos.CENTER);
         g4.setPadding(new Insets(20));
 
         table = new TableView<>();
-        table.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
-        table.setPlaceholder(new Label("No rows to display"));
+        table.setFixedCellSize(30);
+        table.prefHeightProperty().unbind();
+        table.setPrefHeight(400);
+        table.setColumnResizePolicy(TableView.UNCONSTRAINED_RESIZE_POLICY);
+        table.setPlaceholder(new Label("No records found"));
 
         TableColumn<Books, Integer> c1 = new TableColumn<>("Id");
         c1.setCellValueFactory(new PropertyValueFactory<>("id"));
@@ -422,7 +428,8 @@ signupK.setOnAction((ActionEvent event) -> {
         c5.setCellValueFactory(new PropertyValueFactory<>("Availability"));
 
         table.getColumns().addAll(c1, c2, c3, c4, c5);
-        VBox v = new VBox(table, g4);
+        VBox v = new VBox(10,table, g4);
+        table.setPrefHeight(400);
         v.setPadding(new Insets(20));
         Scene scene3 = new Scene(v, 800, 600);
         scene3.getStylesheets().add(getClass().getResource("Sheet.css").toExternalForm());
@@ -476,6 +483,13 @@ signupK.setOnAction((ActionEvent event) -> {
                     stage.show();
                 }
             }
+        });
+
+        signOut.setOnAction(e -> {
+            stage.setScene(scene);
+            stage.setTitle("Welcome!");
+            emailT.clear();
+            passT.clear();
         });
 
         Scene scene4 = new Scene(g3, 600, 500);
@@ -805,7 +819,10 @@ signupK.setOnAction((ActionEvent event) -> {
 
             pst.close();
             conn.close();
+            table.getItems().clear();
             table.setItems(data);
+            table.refresh();
+
         } catch (SQLException e) {
             System.err.println("Error loading books: " + e.getMessage());
             throw e;

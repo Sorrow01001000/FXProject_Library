@@ -18,9 +18,9 @@ public class dbConn {
          Connection conn = null;
 
         try {
-            Class.forName("oracle.jdbc.driver.OracleDriver");  
+            Class.forName("oracle.jdbc.driver.OracleDriver");
 
-            conn = DriverManager.getConnection("jdbc:oracle:thin:Project_fx/123@localhost:1521/XE");
+            conn = DriverManager.getConnection("jdbc:oracle:thin:FX_PROJECT/123@localhost:1521/XE");
 
         } catch (Exception ex) {
             System.out.println(ex.toString());

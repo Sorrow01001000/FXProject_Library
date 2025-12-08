@@ -46,6 +46,8 @@
     -fx-background-color: #55a1ad;
     -fx-border-color: #668c8b;
     -fx-border-width: 2px;
+    -fx-focus-color: transparent;
+    -fx-faint-focus-color: transparent;
 
 }
 
@@ -88,4 +90,8 @@
     -fx-font-size: 16px;
     -fx-text-fill: #888888;
     -fx-font-style: italic;
+}
+
+.table-row-cell {
+    -fx-cell-size: 30px;
 }
