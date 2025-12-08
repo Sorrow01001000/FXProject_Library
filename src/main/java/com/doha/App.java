@@ -129,13 +129,15 @@ public void SignIn(Stage stage) throws IOException{
                 res = pst.executeQuery();
 
                 if (res.next()) {
+                    // store logged-in user's email (primary key) for profile queries
+                    Email_PK = userEmail;
                     Welcome.showAndWait();
                     if (Welcome.getResult().getText().equals("OK")) {
-                    try {
-                Library(stage);
-            } catch (IOException ex) {
-                ex.printStackTrace();
-            }
+                        try {
+                            Library(stage);
+                        } catch (IOException ex) {
+                            ex.printStackTrace();
+                        }
                     }
                 } else {
                     Alert error = new Alert(Alert.AlertType.ERROR, "Invalid credentials!");
@@ -211,7 +213,7 @@ public void SignUp(Stage stage) throws IOException {
         Scene scene2 = new Scene(toot, 500, 400);
         scene2.getStylesheets().add(getClass().getResource("Sheet.css").toExternalForm());
 
-signupK.setOnAction((ActionEvent event) -> {
+        signupK.setOnAction((ActionEvent event) -> {
             stage.setTitle("Form");
 
             if (nameK.getText().trim().isEmpty() || passK.getText().trim().isEmpty() || emailK.getText().trim().isEmpty()) {
@@ -292,7 +294,7 @@ signupK.setOnAction((ActionEvent event) -> {
 
 
         }
- // ====================================Library==========================================
+    // ====================================Library==========================================
     public void Library(Stage stage) throws IOException {
        // throw new UnsupportedOperationException("Not supported yet.");
         Text txt1 = new Text("Add New Book");
@@ -1002,9 +1004,102 @@ public void Calcutor(Stage stage ) throws IOException {
 }
     // ==============================Profile==========================================
     public void Profile(Stage stage ) throws IOException {
-    
+        // Build a small read-only profile view that queries Users by Email_PK
+        Label nameL = new Label("Name:");
+        Label emailL = new Label("Email:");
+        Label dobL = new Label("Date of birth:");
+        Label genderL = new Label("Gender:");
+
+        TextField nameT = new TextField();
+        TextField emailT = new TextField();
+        TextField dobT = new TextField();
+        TextField genderT = new TextField();
+
+        nameT.setEditable(false);
+        emailT.setEditable(false);
+        dobT.setEditable(false);
+        genderT.setEditable(false);
+
+        Button back = new Button("Back");
+
+        GridPane g = new GridPane();
+        g.setVgap(10);
+        g.setHgap(10);
+        g.setPadding(new Insets(20));
+        g.setAlignment(Pos.CENTER);
+
+        g.add(nameL, 0, 0);
+        g.add(nameT, 1, 0);
+        g.add(emailL, 0, 1);
+        g.add(emailT, 1, 1);
+        g.add(dobL, 0, 2);
+        g.add(dobT, 1, 2);
+        g.add(genderL, 0, 3);
+        g.add(genderT, 1, 3);
+        g.add(back, 1, 4);
+
+        // If Email_PK is empty, show error and return to Dashboard
+        if (Email_PK == null || Email_PK.trim().isEmpty()) {
+            Alert error = new Alert(Alert.AlertType.ERROR, "No signed-in user found.");
+            error.setTitle("Error");
+            error.showAndWait();
+            try {
+                Dashboard(stage);
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            }
+            return;
+        }
+
+        // Query user data by primary key Email
+        String sql = "SELECT Name, Email, DOB, Gender FROM Users WHERE Email = ?";
+        conn = dbConn.DBConnection();
+        if (conn == null) {
+            Alert error = new Alert(Alert.AlertType.ERROR, "Database connection failed.");
+            error.setTitle("DB Error");
+            error.show();
+            return;
+        }
+
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, Email_PK);
+            try (ResultSet r = ps.executeQuery()) {
+                if (r.next()) {
+                    nameT.setText(r.getString("Name") != null ? r.getString("Name") : "");
+                    emailT.setText(r.getString("Email") != null ? r.getString("Email") : "");
+                    dobT.setText(r.getString("DOB") != null ? r.getString("DOB") : "");
+                    genderT.setText(r.getString("Gender") != null ? r.getString("Gender") : "");
+                } else {
+                    Alert info = new Alert(Alert.AlertType.INFORMATION, "User not found.");
+                    info.setTitle("Not found");
+                    info.show();
+                }
+            }
+        } catch (SQLException ex) {
+            Alert error = new Alert(Alert.AlertType.ERROR, "Error loading profile: " + ex.getMessage());
+            error.show();
+            System.out.println(ex.toString());
+        } finally {
+            try { if (conn != null) conn.close(); } catch (Exception e) { }
+            conn = null;
+        }
+
+        Scene scene = new Scene(g, 500, 300);
+        scene.getStylesheets().add(getClass().getResource("Sheet.css").toExternalForm());
+
+        back.setOnAction((ActionEvent) -> {
+            try {
+                Dashboard(stage);
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            }
+        });
+
+        stage.setTitle("Profile");
+        stage.setScene(scene);
+        stage.show();
     }
-    // ==============================Profile==========================================
+    
     
 
     public static void main(String[] args) {
