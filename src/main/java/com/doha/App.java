@@ -37,6 +37,8 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
+import org.jetbrains.annotations.NotNull;
+
 /**
  * JavaFX App
  *  connect with data base and complete empty function
@@ -52,16 +54,20 @@ public class App extends Application {
 
     @Override
     public void start(Stage stage) throws IOException {
-        
-    SignIn(stage);
+
+        SignIn(stage);
     }
-public void SignIn(Stage stage) throws IOException{
+
+    public void SignIn(Stage stage) throws IOException {
         Label email = new Label("Email: ");
         Label pass = new Label("Password: ");
         TextField emailT = new TextField();
         PasswordField passT = new PasswordField();
         Button signin = new Button("Sign in");
         Button signup = new Button("Sign up");
+        Button forgotBtn = new Button("Forgot Password?");
+        forgotBtn.setStyle("-fx-background-color: transparent; -fx-text-fill: white;");
+
         GridPane root = new GridPane();
         root.add(email, 0, 0);
         root.add(pass, 0, 1);
@@ -69,6 +75,7 @@ public void SignIn(Stage stage) throws IOException{
         root.add(passT, 1, 1);
         root.add(signin, 0, 2);
         root.add(signup, 1, 2);
+        root.add(forgotBtn,1,3);
         root.setAlignment(Pos.CENTER);
         root.setVgap(10);
         root.setHgap(10);
@@ -76,7 +83,6 @@ public void SignIn(Stage stage) throws IOException{
         Scene scene = new Scene(root, 350, 400);
         scene.getStylesheets().add(getClass().getResource("Sheet.css").toExternalForm());
 
-        
 
         Alert Welcome = new Alert(Alert.AlertType.INFORMATION, "Welcome!");
         Welcome.setTitle("Signed in");
@@ -102,7 +108,7 @@ public void SignIn(Stage stage) throws IOException{
     });
     */
 
-    // Sign in using database credentials (Users table must exist)
+        // Sign in using database credentials (Users table must exist)
         signin.setOnAction((ActionEvent) -> {
             String userEmail = emailT.getText().trim();
             String userPass = passT.getText().trim();
@@ -150,9 +156,18 @@ public void SignIn(Stage stage) throws IOException{
                 error.show();
                 System.out.println(ex.toString());
             } finally {
-                try { if (res != null) res.close(); } catch (Exception e) { }
-                try { if (pst != null) pst.close(); } catch (Exception e) { }
-                try { if (conn != null) conn.close(); } catch (Exception e) { }
+                try {
+                    if (res != null) res.close();
+                } catch (Exception e) {
+                }
+                try {
+                    if (pst != null) pst.close();
+                } catch (Exception e) {
+                }
+                try {
+                    if (conn != null) conn.close();
+                } catch (Exception e) {
+                }
                 // reset connection fields to avoid accidental reuse
                 res = null;
                 pst = null;
@@ -171,15 +186,25 @@ public void SignIn(Stage stage) throws IOException{
         stage.setScene(scene);
         stage.show();
 
+        forgotBtn.setOnAction(e -> {
+            try {
+                ForgetPassword(stage);
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            }
+        });
 
-}
- // =====================================SignUP==========================================
 
-public void SignUp(Stage stage) throws IOException {
+    }
+    // =====================================SignUP==========================================
+
+    public void SignUp(Stage stage) throws IOException {
         Label nameL = new Label("Name :");
         Label passL = new Label("Password :");
         Label emailL = new Label("Email :");
         Label datel = new Label("Date of birth :");
+        Label l4 = new Label("Security Question: What is your favorite food?");
+        TextField t4 = new TextField();
         TextField nameK = new TextField();
         PasswordField passK = new PasswordField();
         TextField emailK = new TextField();
@@ -194,7 +219,7 @@ public void SignUp(Stage stage) throws IOException {
 
         CheckBox cb = new CheckBox("I agree ");
         GridPane toot = new GridPane();
-        toot.add(back, 1, 7);
+        toot.add(back, 1, 8);
         toot.add(nameL, 0, 0);
         toot.add(passL, 0, 1);
         toot.add(emailL, 0, 2);
@@ -202,22 +227,25 @@ public void SignUp(Stage stage) throws IOException {
         toot.add(nameK, 1, 0);
         toot.add(passK, 1, 1);
         toot.add(emailK, 1, 2);
+        toot.add(l4,0,4);
+        toot.add(t4,1,4);
         toot.add(date, 1, 3);
-        toot.add(rb1, 0, 4);
-        toot.add(rb2, 1, 4);
-        toot.add(cb, 0, 5);
-        toot.add(signupK, 1, 5);
+        toot.add(rb1, 0, 5);
+        toot.add(rb2, 1, 5);
+        toot.add(cb, 0, 6);
+        toot.add(signupK, 1, 6);
         toot.setHgap(10);
         toot.setVgap(10);
         toot.setAlignment(Pos.CENTER);
 
-        Scene scene2 = new Scene(toot, 500, 400);
+        Scene scene2 = new Scene(toot, 700, 500);
         scene2.getStylesheets().add(getClass().getResource("Sheet.css").toExternalForm());
 
         signupK.setOnAction((ActionEvent event) -> {
             stage.setTitle("Form");
 
-            if (nameK.getText().trim().isEmpty() || passK.getText().trim().isEmpty() || emailK.getText().trim().isEmpty()) {
+            if (nameK.getText().trim().isEmpty() || passK.getText().trim().isEmpty() || emailK.getText().trim().isEmpty()
+                    || t4.getText().trim().isEmpty()) {
                 Alert error = new Alert(Alert.AlertType.ERROR, "Please fill in all required fields.");
                 error.setTitle("Invalid Inputs");
                 error.show();
@@ -234,6 +262,8 @@ public void SignUp(Stage stage) throws IOException {
             String email = emailK.getText().trim();
             String dob = (date.getValue() != null) ? date.getValue().toString() : "";
             String gender = rb1.isSelected() ? "Male" : (rb2.isSelected() ? "Female" : "");
+            String sec = t4.getText().trim();
+
 
             conn = dbConn.DBConnection();
             if (conn == null) {
@@ -243,7 +273,7 @@ public void SignUp(Stage stage) throws IOException {
                 return;
             }
 
-            String sql = "INSERT INTO Users (Name, Password, Email, DOB, Gender) VALUES (?, ?, ?, ?, ?)";
+            String sql = "INSERT INTO Users (Name, Password, Email, DOB, Gender, SecurityAnswer) VALUES (?, ?, ?, ?, ?, ?)";
             try {
                 pst = conn.prepareStatement(sql);
                 pst.setString(1, name);
@@ -251,6 +281,7 @@ public void SignUp(Stage stage) throws IOException {
                 pst.setString(3, email);
                 pst.setString(4, dob);
                 pst.setString(5, gender);
+                pst.setString(6, sec);
 
                 int i = pst.executeUpdate();
                 if (i == 1) {
@@ -273,13 +304,19 @@ public void SignUp(Stage stage) throws IOException {
                 error.show();
                 System.out.println(ex.toString());
             } finally {
-                try { if (pst != null) pst.close(); } catch (Exception e) { }
-                try { if (conn != null) conn.close(); } catch (Exception e) { }
+                try {
+                    if (pst != null) pst.close();
+                } catch (Exception e) {
+                }
+                try {
+                    if (conn != null) conn.close();
+                } catch (Exception e) {
+                }
                 pst = null;
                 conn = null;
             }
         });
-        
+
         back.setOnAction((ActionEvent event) -> {
             try {
                 SignIn(stage);
@@ -289,15 +326,16 @@ public void SignUp(Stage stage) throws IOException {
         });
 
 
-            stage.setTitle("Sign Up");
-            stage.setScene(scene2);
-            stage.show();
+        stage.setTitle("Sign Up");
+        stage.setScene(scene2);
+        stage.show();
 
 
-        }
+    }
+
     // ====================================Library==========================================
-    public void Library(Stage stage) throws IOException {
-       // throw new UnsupportedOperationException("Not supported yet.");
+    public void Library(@NotNull Stage stage) throws IOException {
+        // throw new UnsupportedOperationException("Not supported yet.");
         Text txt1 = new Text("Add New Book");
         txt1.setStyle("-fx-font-size: 18px; -fx-font-weight: bold;");
         Label id = new Label("Id: ");
@@ -350,7 +388,10 @@ public void SignUp(Stage stage) throws IOException {
         g4.setPadding(new Insets(20));
 
         table = new TableView<>();
+        table.setFixedCellSize(30);
+        table.setPrefHeight(300);
         table.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
+
         table.setPlaceholder(new Label("No rows to display"));
 
         TableColumn<Books, Integer> c1 = new TableColumn<>("Id");
@@ -368,14 +409,19 @@ public void SignUp(Stage stage) throws IOException {
         TableColumn<Books, String> c5 = new TableColumn<>("Availability");
         c5.setCellValueFactory(new PropertyValueFactory<>("Availability"));
 
+
         table.getColumns().addAll(c1, c2, c3, c4, c5);
-        VBox v = new VBox(table, g4);
+        VBox v = new VBox(20,table, g4);
+        table.setFixedCellSize(30);
+        table.setPrefHeight(400);
+
         v.setPadding(new Insets(20));
+
         Scene scene3 = new Scene(v, 800, 600);
         scene3.getStylesheets().add(getClass().getResource("Sheet.css").toExternalForm());
         stage.setTitle("Library Management");
-            stage.setScene(scene3);
-            stage.show();
+        stage.setScene(scene3);
+        stage.show();
         back.setOnAction((ActionEvent event) -> {
             stage.setTitle("Library Management");
             stage.setScene(scene3);
@@ -398,10 +444,11 @@ public void SignUp(Stage stage) throws IOException {
         });
         b1.setOnAction((ActionEvent) -> {
             try {
-            Dashboard(stage);
-        } catch (IOException ex) {
-            ex.printStackTrace();
-        }  });
+                Dashboard(stage);
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            }
+        });
 
         insert.setOnAction((ActionEvent event) -> {
             if (idt.getText().trim().isEmpty() || bnt.getText().trim().isEmpty() ||
@@ -694,7 +741,7 @@ public void SignUp(Stage stage) throws IOException {
                 windowEvent.consume();
             }
         });
-    
+
     }
 
     public void show() throws SQLException {
@@ -722,7 +769,10 @@ public void SignUp(Stage stage) throws IOException {
 
             pst.close();
             conn.close();
+            table.getItems().clear();
             table.setItems(data);
+            table.refresh();
+
         } catch (SQLException e) {
             System.err.println("Error loading books: " + e.getMessage());
             throw e;
@@ -730,8 +780,8 @@ public void SignUp(Stage stage) throws IOException {
     }
 
 
-     // ===============================DashBoard==========================================
-    public void Dashboard(Stage stage ) throws IOException {
+    // ===============================DashBoard==========================================
+    public void Dashboard(Stage stage) throws IOException {
         Button b1 = new Button("calculator");
 
         Button b2 = new Button(" library");
@@ -763,34 +813,36 @@ public void SignUp(Stage stage) throws IOException {
         b2.setStyle(buttonStyle + "-fx-background-color: #3498db; -fx-text-fill: white;");
         back.setStyle(buttonStyle + "-fx-background-color: #ff0000ff; -fx-text-fill: white;");
         profileButton.setStyle(buttonStyle + "-fx-background-color: #2705ffff; -fx-text-fill: white;");
-    
+
         b1.setOnAction((ActionEvent) -> {
             try {
-            Calcutor(stage);
-        } catch (IOException ex) {
-            ex.printStackTrace();
-        }  });
+                Calcutor(stage);
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            }
+        });
         b2.setOnAction((ActionEvent) -> {
             try {
-            Library(stage);
-        } catch (IOException ex) {
-            ex.printStackTrace();
-        }  });
+                Library(stage);
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            }
+        });
         back.setOnAction((ActionEvent) -> {
             try {
-            SignIn(stage);
-        } catch (IOException ex) {
-            ex.printStackTrace();
-        }
-        
+                SignIn(stage);
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            }
+
         });
         profileButton.setOnAction((ActionEvent) -> {
             try {
-            Profile(stage);
-        } catch (IOException ex) {
-            ex.printStackTrace();
-        }
-        
+                Profile(stage);
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            }
+
         });
 
         Scene scene = new Scene(g, 500, 400);
@@ -798,287 +850,277 @@ public void SignUp(Stage stage) throws IOException {
         stage.setScene(scene);
         stage.show();
     }
+
     // ==============================ForgetPassword==========================================
-public void ForgetPassword(Stage primaryStage ) throws IOException {
+    public void ForgetPassword(Stage stage) throws IOException {
+
 
         Label title = new Label("Forgot Password");
-        title.setStyle("-fx-font-size: 28px; -fx-font-weight: bold;");
+        title.setStyle("-fx-font-size: 28px; -fx-font-weight: bold; -fx-text-fill: white;");
 
+        Label userLabel = new Label("Enter Username:");
+        TextField userField = new TextField();
+        userLabel.setStyle("-fx-text-fill: white; -fx-font-size: 16px;");
 
-        Label l1 = new Label("Your email address:");
-        TextField t1 = new TextField();
-        t1.setPromptText("name@example.com");
-        t1.setPrefWidth(250);
+        userField.setPromptText("Username");
+        userField.setPrefWidth(250);
+        userLabel.setStyle(
+                "-fx-background-color: white; " +
+                "-fx-background-radius: 6; " +
+                "-fx-padding: 6 8 6 8; " +
+                "-fx-border-color: transparent;"
+        );
 
+        Label qLabel = new Label("Security Question: What is your favorite food?");
+        qLabel.setStyle("-fx-text-fill: white; -fx-font-size: 16px;");
 
-        Button send = new Button("Send Reset Code");
-        send.setPrefWidth(250);
-        send.setStyle("-fx-background-color: #4a90e2; -fx-text-fill: white; -fx-padding: 10;"
-                + "-fx-font-size: 14px; -fx-background-radius: 5;");
-        
-        Button backFromEmail = new Button("Back");
-        backFromEmail.setPrefWidth(250);
-        backFromEmail.setStyle("-fx-background-color: #e93434ff; -fx-text-fill: white; -fx-padding: 10;"
-                + "-fx-font-size: 14px; -fx-background-radius: 5;");
+        TextField answerField = new TextField();
+        answerField.setPromptText("Your answer here");
+        answerField.setPrefWidth(250);
+        answerField.setStyle(
+                "-fx-background-color: white; " +
+                        "-fx-background-radius: 6; " +
+                        "-fx-padding: 6 8 6 8; " +
+                        "-fx-border-color: transparent;"
+        );
+
+        Button verifyBtn = new Button("Verify");
+        verifyBtn.setPrefWidth(250);
+        verifyBtn.setPrefHeight(40);
+
+        verifyBtn.setStyle(
+                "-fx-background-color: teal;" +
+                        "-fx-text-fill: white;" +
+                        "-fx-font-size: 16px;" +
+                        "-fx-padding: 10 20;" +
+                        "-fx-background-radius: 8;" +
+                        "-fx-border-radius: 8;" +
+                        "-fx-cursor: hand;" +
+                        "-fx-border-color: white;" +
+                        "-fx-border-width: 2;"
+        );
+
+        Button backBtn = new Button("Back");
+        backBtn.setPrefWidth(100);
+        backBtn.setPrefHeight(35);
+        backBtn.setStyle(
+                "-fx-background-color: red;" +
+                        "-fx-text-fill: white;" +
+                        "-fx-font-size: 14px;" +
+                        "-fx-background-radius: 8;" +
+                        "-fx-border-radius: 8;" +
+                        "-fx-cursor: hand;" +
+                        "-fx-border-color: white;" +
+                        "-fx-border-width: 2;"
+        );
+
 
 
         GridPane g1 = new GridPane();
-        g1.setHgap(10);
         g1.setVgap(15);
         g1.setAlignment(Pos.CENTER);
-
+        verifyBtn.setAlignment(Pos.CENTER);
 
         g1.add(title, 0, 0);
-        g1.add(l1,   0, 1);
-        g1.add(t1,   0, 2);
-        g1.add(send, 0, 3);
-        g1.add(backFromEmail, 0, 4);
+        g1.add(userLabel, 0, 1);
+        g1.add(userField, 0, 2);
+        g1.add(qLabel, 0, 3);
+        g1.add(answerField, 0, 4);
+        g1.add(verifyBtn, 0, 5);
+        g1.add(backBtn, 0, 6);
 
-        g1.setStyle("-fx-background-color: #f5f5f5;");
+
+        g1.setStyle(
+                "-fx-background-color: #2b5e66; " +
+                        "-fx-padding: 30;"
+        );
+
+        Scene scene1 = new Scene(g1, 500, 500);
 
 
-        Scene scene = new Scene(g1, 500, 500);
-        primaryStage.setTitle("Forget Password");
-        primaryStage.setScene(scene);
-        primaryStage.show();
+        // ================================
+        //  Scene 2: Reset Password
+        // ================================
 
-        // Back button from Email scene - goes to SignIn
-        backFromEmail.setOnAction(e -> {
+        Label title2 = new Label("Reset Password");
+        title2.setStyle("-fx-font-size: 28px; -fx-font-weight: bold; -fx-text-fill: white;");
+
+
+        Label newPassLabel = new Label("New Password:");
+        newPassLabel.setStyle("-fx-text-fill: white; -fx-font-size: 16px;");
+
+        PasswordField newPassField = new PasswordField();
+        newPassField.setPromptText("Enter new password");
+        newPassField.setPrefWidth(250);
+        newPassField.setStyle(
+                "-fx-background-color: white; " +
+                        "-fx-background-radius: 6; " +
+                        "-fx-padding: 6 8 6 8; " +
+                        "-fx-border-color: transparent;"
+        );
+
+        Label confirmLabel = new Label("Confirm Password:");
+        confirmLabel.setStyle("-fx-text-fill: white; -fx-font-size: 16px;");
+
+        PasswordField confirmField = new PasswordField();
+        confirmField.setPromptText("Confirm password");
+        confirmField.setPrefWidth(250);
+        confirmField.setStyle(
+                "-fx-background-color: white; " +
+                        "-fx-background-radius: 6; " +
+                        "-fx-padding: 6 8 6 8; " +
+                        "-fx-border-color: transparent;"
+        );
+
+
+
+        Button resetBtn = new Button("Reset Password");
+        resetBtn.setPrefWidth(250);
+        resetBtn.setPrefHeight(40);
+
+        resetBtn.setStyle(
+                "-fx-background-color: teal; " +
+                        "-fx-text-fill: white;" +
+                        "-fx-font-size: 16px;" +
+                        "-fx-padding: 10 20;" +
+                        "-fx-background-radius: 8;" +
+                        "-fx-border-radius: 8;" +
+                        "-fx-cursor: hand;" +
+                        "-fx-border-color: white;" +
+                        "-fx-border-width: 2;"
+        );
+
+        GridPane g2 = new GridPane();
+        g2.setVgap(15);
+        g2.setAlignment(Pos.CENTER);
+
+        g2.add(title2, 0, 0);
+        g2.add(newPassLabel, 0, 1);
+        g2.add(newPassField, 0, 2);
+        g2.add(confirmLabel, 0, 3);
+        g2.add(confirmField, 0, 4);
+        g2.add(resetBtn, 0, 5);
+
+        g2.setStyle(
+                "-fx-background-color: #2b5e66; " +
+                        "-fx-padding: 30;"
+        );
+
+        Scene scene2 = new Scene(g2, 500, 500);
+
+
+        // ================================
+        // Verify Button Action
+        // ================================
+
+        verifyBtn.setOnAction(e -> {
+
+            String username = userField.getText().trim();
+            String answer = answerField.getText().trim();
+
+            if (username.isEmpty() || answer.isEmpty()) {
+                showAlert(Alert.AlertType.WARNING, "Missing Data", "Please fill all fields!");
+                return;
+            }
+
             try {
-                SignIn(primaryStage);
+                conn = dbConn.DBConnection();
+                String sql = "SELECT * FROM Users WHERE UPPER(Name)=UPPER(?) AND UPPER(SecurityAnswer)=UPPER(?)";
+                pst = conn.prepareStatement(sql);
+
+                pst.setString(1, username);
+                pst.setString(2, answer);
+
+                res = pst.executeQuery();
+
+                if (res.next()) {
+                    stage.setScene(scene2);   // Move to Reset Password page
+                } else {
+                    showAlert(Alert.AlertType.ERROR, "Error", "Incorrect username or answer!");
+                }
+
+                pst.close();
+                conn.close();
+
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+        });
+
+
+        // ================================
+        // Reset Button Action
+        // ================================
+
+        resetBtn.setOnAction(e -> {
+
+            String username = userField.getText().trim();
+            String answer = answerField.getText().trim();
+            String newPass = newPassField.getText();
+            String confirm = confirmField.getText();
+
+            if (!newPass.equals(confirm)) {
+                showAlert(Alert.AlertType.ERROR, "Error", "Passwords do not match!");
+                return;
+            }
+
+            try {
+                conn = dbConn.DBConnection();
+                conn.setAutoCommit(false);
+
+                String sql = "UPDATE Users SET Password=? WHERE UPPER(Name)=UPPER(?) AND UPPER(SecurityAnswer)=UPPER(?)";
+                pst = conn.prepareStatement(sql);
+
+                pst.setString(1, newPass);
+                pst.setString(2, username);
+                pst.setString(3, answer);
+
+                int updated = pst.executeUpdate();
+                conn.commit();
+
+                if (updated > 0) {
+                    Alert info = new Alert(Alert.AlertType.INFORMATION, "Password has been reset. Please login.");
+                    info.showAndWait();
+                    SignIn(stage);
+                } else {
+                    showAlert(Alert.AlertType.ERROR, "Error", "Failed to update password!");
+                }
+
+                pst.close();
+                conn.close();
+
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+        });
+
+        backBtn.setOnAction(e -> {
+            try {
+                SignIn(stage);
             } catch (IOException ex) {
                 ex.printStackTrace();
             }
         });
 
 
-    /// ///////////////////////////////////////////////////////////////////////
+        stage.setScene(scene1);
+        stage.setTitle("Forgot Password");
+        stage.show();
+    }
 
 
-        Label title2 = new Label("Send Reset code:");
-        title2.setStyle("-fx-font-size: 28px; -fx-font-weight: bold;");
-        SecureRandom sr = new SecureRandom();
-        int Verify_Code = 100000 + sr.nextInt(900000);
-        Label l2 = new Label("Enter the code we send to your email");
-        TextField t2 = new TextField();
-        t2.setPromptText("Enter the code");
-        t2.setPrefWidth(250);
+    // ================================
+// Helper Alert Method
+// ================================
+    private void showAlert(Alert.AlertType type, String title, String msg) {
+        Alert alert = new Alert(type);
+        alert.setHeaderText(null);
+        alert.setTitle(title);
+        alert.setContentText(msg);
+        alert.showAndWait();
+    }
 
 
-        Button Verify= new Button("Verify Code");
-        Verify.setPrefWidth(250);
-        Verify.setStyle("-fx-background-color: #4a90e2; -fx-text-fill: white; -fx-padding: 10;"
-                + "-fx-font-size: 14px; -fx-background-radius: 5;");
-        
-        Button backFromVerify = new Button("Back");
-        backFromVerify.setPrefWidth(250);
-        backFromVerify.setStyle("-fx-background-color: #e93434ff; -fx-text-fill: white; -fx-padding: 10;"
-                + "-fx-font-size: 14px; -fx-background-radius: 5;");
-
-        GridPane g2 = new GridPane();
-        g2.setHgap(10);
-        g2.setVgap(15);
-        g2.setAlignment(Pos.CENTER);
-
-
-        g2.add(title2, 0, 0);
-        g2.add(l2,   0, 1);
-        g2.add(t2,   0, 2);
-        g2.add(Verify, 0, 3);
-        g2.add(backFromVerify, 0, 4);
-
-        g2.setStyle("-fx-background-color: #f5f5f5;");
-
-
-    Scene scene2 = new Scene(g2, 500, 500);
-
-       /////////////////////////////////////////////////////////////////////////////
-       
-        // Back button from Verify scene - goes back to Email scene
-        backFromVerify.setOnAction(e -> {
-            t2.clear();
-            primaryStage.setScene(scene);
-            primaryStage.setTitle("Forget Password");
-        });
-
-
-        Label title3 = new Label(" Reset your password:");
-        title3.setStyle("-fx-font-size: 28px; -fx-font-weight: bold;");
-
-        Label l3 = new Label("New password:");
-        TextField t3 = new TextField();
-        t3.setPromptText("Enter new password");
-        t3.setPrefWidth(250);
-
-        Label l4 = new Label("Confirm Password:");
-        TextField t4 = new TextField();
-        t4.setPromptText("Enter Confirm Password");
-        t4.setPrefWidth(250);
-
-        Button Reset= new Button("Reset Password");
-        Reset.setPrefWidth(250);
-        Reset.setStyle("-fx-background-color: #4a90e2; -fx-text-fill: white; -fx-padding: 10;"
-                + "-fx-font-size: 14px; -fx-background-radius: 5;");
-        
-        Button backFromReset = new Button("Back");
-        backFromReset.setPrefWidth(250);
-        backFromReset.setStyle("-fx-background-color: #e93434ff; -fx-text-fill: white; -fx-padding: 10;"
-                + "-fx-font-size: 14px; -fx-background-radius: 5;");
-
-        GridPane g3 = new GridPane();
-        g3.setHgap(10);
-        g3.setVgap(15);
-        g3.setAlignment(Pos.CENTER);
-
-
-        g3.add(title3, 0, 0);
-        g3.add(l3,   0, 1);
-        g3.add(t3,   0, 2);
-        g3.add(l4,   0, 3);
-        g3.add(t4,   0, 4);
-        g3.add(Reset, 0, 5);
-        g3.add(backFromReset, 0, 6);
-
-        g3.setStyle("-fx-background-color: #f5f5f5;");
-
-        Scene scene3 = new Scene(g3, 500, 500);
-
-        /* 
-        send.setOnAction(e -> {
-            String email = t1.getText().trim();
-
-            String emailRegex = "^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$";
-            if(email.isEmpty()) {
-                Alert alert = new Alert(Alert.AlertType.WARNING);
-                alert.setTitle("Warning");
-                alert.setHeaderText(null);
-                alert.setContentText("Please enter your email!");
-                alert.showAndWait();
-            } else if (!email.matches(emailRegex)) {                 Alert alert = new Alert(Alert.AlertType.ERROR);
-                alert.setTitle("Invalid Email");
-                alert.setHeaderText(null);
-                alert.setContentText("Please enter a valid email!");
-                alert.showAndWait();
-            } else {
-                // Store email for password reset and show verification code info
-                t1.setStyle("-fx-text-fill: #666;");
-                Alert infoAlert = new Alert(Alert.AlertType.INFORMATION);
-                infoAlert.setTitle("Code Generated");
-                infoAlert.setHeaderText("Verification Code Sent");
-                infoAlert.setContentText("A verification code has been generated and sent to:\n" + email + 
-                                        "\n\nGenerated Code: " + Verify_Code +
-                                        "\n\nPlease enter this code to proceed with password reset.");
-                infoAlert.showAndWait();
-                
-                primaryStage.setScene(scene2);
-                primaryStage.setTitle("Send Reset code");
-            }
-        }); */
-
-
-        Verify.setOnAction(e -> {
-            String text_faviorte = "";
-            String input = t2.getText().trim();
-            // here ya omar put query select what is ypur faviorte
-
-            if(input.equals(text_faviorte)) {
-                primaryStage.setScene(scene3);
-                primaryStage.setTitle("Reset your password");
-            } else {
-                
-                Alert alert = new Alert(Alert.AlertType.ERROR);
-                alert.setTitle("Invalid Answer");
-                alert.setHeaderText(null);
-                alert.setContentText("Empty Input!");
-                alert.showAndWait();
-            }
-        });
-
-        // Back button from Reset scene - goes back to Verify scene
-        backFromReset.setOnAction(e -> {
-            t3.clear();
-            t4.clear();
-            primaryStage.setScene(scene2);
-            primaryStage.setTitle("Send Reset code");
-        });
-
-        Reset.setOnAction(e -> {
-
-            String pass = t3.getText();
-            String confirm = t4.getText();
-
-            if (!pass.equals(confirm)) {
-                Alert alert = new Alert(Alert.AlertType.ERROR);
-                alert.setTitle("Error");
-                alert.setHeaderText(null);
-                alert.setContentText("Passwords do not match!");
-                alert.showAndWait();
-            } else if (pass.isEmpty() || confirm.isEmpty()) {
-                Alert alert = new Alert(Alert.AlertType.ERROR);
-                alert.setTitle("Error");
-                alert.setHeaderText(null);
-                alert.setContentText("Password fields cannot be empty!");
-                alert.showAndWait();
-            } else {
-                // Update password in database for the email
-                String email = t1.getText().trim();
-                String updateSql = "UPDATE Users SET Password = ? WHERE Email = ?";
-                conn = dbConn.DBConnection();
-                
-                if (conn == null) {
-                    Alert alert = new Alert(Alert.AlertType.ERROR);
-                    alert.setTitle("Error");
-                    alert.setHeaderText("Database Error");
-                    alert.setContentText("Database connection failed!");
-                    alert.showAndWait();
-                    return;
-                }
-                
-                try (PreparedStatement ps = conn.prepareStatement(updateSql)) {
-                    ps.setString(1, pass);
-                    ps.setString(2, email);
-                    int rowsAffected = ps.executeUpdate();
-                    
-                    if (rowsAffected > 0) {
-                        Alert alert = new Alert(Alert.AlertType.INFORMATION);
-                        alert.setTitle("Success");
-                        alert.setHeaderText(null);
-                        alert.setContentText("Password reset successfully!");
-                        alert.showAndWait();
-                        
-                        // Clear all fields and go back to sign-in
-                        t1.clear();
-                        t2.clear();
-                        t3.clear();
-                        t4.clear();
-                        try {
-                            SignIn(primaryStage);
-                        } catch (IOException ex) {
-                            ex.printStackTrace();
-                        }
-                    } else {
-                        Alert alert = new Alert(Alert.AlertType.ERROR);
-                        alert.setTitle("Error");
-                        alert.setHeaderText(null);
-                        alert.setContentText("Email not found in database!");
-                        alert.showAndWait();
-                    }
-                } catch (SQLException ex) {
-                    Alert alert = new Alert(Alert.AlertType.ERROR);
-                    alert.setTitle("Error");
-                    alert.setHeaderText("Database Error");
-                    alert.setContentText("Error updating password: " + ex.getMessage());
-                    alert.showAndWait();
-                    System.out.println(ex.toString());
-                } finally {
-                    try { if (conn != null) conn.close(); } catch (Exception ex) { }
-                    conn = null;
-                }
-            }
-
-        });
-
-}
     // ==============================calcutor==========================================
 public void Calcutor(Stage stage ) throws IOException {
         Button b1 = new Button("About");

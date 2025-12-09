@@ -11,6 +11,7 @@ module com.doha {
     requires eu.hansolo.tilesfx;
     requires com.almasb.fxgl.all;
     requires java.sql;
+    requires annotations;
 
     opens com.doha to javafx.fxml;
     exports com.doha;
